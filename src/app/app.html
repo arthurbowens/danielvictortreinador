@@ -287,8 +287,8 @@
       <span class="section-label">Depoimentos</span>
       <h2 class="section-title">Quem treina, recomenda</h2>
       <p class="section-desc">
-        Relatos reais de alunos na consultoria. Deslize para o lado na foto para ver o próximo
-        depoimento. Para cima e para baixo a página continua rolando normalmente.
+        Relatos reais de alunos na consultoria. Deslize para o lado para ver o próximo depoimento.
+        Para cima e para baixo a página continua rolando normalmente.
       </p>
 
       <div
@@ -320,15 +320,26 @@
             [style.transform]="carouselTransform()"
             [style.width.%]="testimonials.length * 100"
           >
-            @for (item of testimonials; track item.src; let i = $index) {
-              <figure
-                class="carousel-slide"
+            @for (item of testimonials; track item.id; let i = $index) {
+              <article
+                class="carousel-slide testimonial-chat"
                 [style.flex]="'0 0 ' + carouselSlideBasis()"
                 [attr.aria-hidden]="activeTestimonial() !== i"
                 [class.carousel-slide--active]="activeTestimonial() === i"
+                [attr.aria-label]="'Depoimento de ' + item.name"
               >
-                <img [src]="item.src" [alt]="item.alt" draggable="false" loading="lazy" />
-              </figure>
+                <header class="testimonial-chat__header">
+                  <div class="testimonial-chat__avatar" aria-hidden="true">
+                    {{ testimonialInitials(item.name) }}
+                  </div>
+                  <h3 class="testimonial-chat__name">{{ item.name }}</h3>
+                </header>
+                <div class="testimonial-chat__messages">
+                  @for (message of item.messages; track message) {
+                    <p class="testimonial-chat__bubble">{{ message }}</p>
+                  }
+                </div>
+              </article>
             }
           </div>
         </div>
@@ -345,7 +356,7 @@
         </button>
 
         <div class="carousel-dots" role="tablist" aria-label="Selecionar depoimento">
-          @for (item of testimonials; track item.src; let i = $index) {
+          @for (item of testimonials; track item.id; let i = $index) {
             <button
               type="button"
               class="carousel-dot"
@@ -358,7 +369,7 @@
           }
         </div>
 
-        <p class="carousel-hint">Deslize para o lado na foto</p>
+        <p class="carousel-hint">Deslize para o lado no chat</p>
       </div>
     </div>
   </section>
@@ -480,7 +491,13 @@
   </footer>
 
   @if (anamneseChatOpen()) {
-    <section id="anamnese-assistant" class="anamnese-chat" aria-label="Assistente de anamnese">
+    <section
+      id="anamnese-assistant"
+      class="anamnese-chat"
+      [class.anamnese-chat--mobile-fit]="anamneseChatMobileFit()"
+      [style]="anamneseChatStyle()"
+      aria-label="Assistente de anamnese"
+    >
       <header class="anamnese-chat__header">
         <div class="anamnese-chat__profile">
           <img
@@ -533,6 +550,7 @@
                 class="anamnese-chat__input"
                 [value]="chatInput()"
                 (input)="onChatInput($event)"
+                (focus)="onChatInputFocus()"
                 (keydown)="onChatInputKeydown($event)"
                 [placeholder]="step.placeholder ?? 'Digite sua resposta'"
                 autocomplete="off"

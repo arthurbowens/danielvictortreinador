@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnDestroy, signal } from '@angular/core';
 import {
   ANAMNESE_INTRO_LINES,
   ANAMNESE_STEPS,
@@ -13,8 +13,9 @@ export interface ChatMessage {
 }
 
 export interface Testimonial {
-  src: string;
-  alt: string;
+  id: string;
+  name: string;
+  messages: string[];
 }
 
 export interface Plan {
@@ -35,15 +36,57 @@ export interface Plan {
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
-export class App {
+export class App implements OnDestroy {
   /** Número com DDI + DDD, somente dígitos. */
   readonly whatsappPhone = '5511958727755';
 
   readonly testimonials: Testimonial[] = [
-    { src: 'depoimento1.jpeg', alt: 'Depoimento de aluna no chat' },
-    { src: 'depoimento2.jpeg', alt: 'Depoimento de aluno' },
-    { src: 'depoimento3.jpeg', alt: 'Depoimento de aluno' },
-    { src: 'depoimento4.jpeg', alt: 'Depoimento de aluno' },
+    {
+      id: 'valeria',
+      name: 'Valéria de Jesus',
+      messages: [
+        'Muito ilusão da minha parte achar que seria um sumô comum kkkkkkkkkkkkkk',
+        'Obrigada',
+        'Boa semana 😘',
+        'Mas eu fiz esse segundo vídeo! Vou manter ele',
+        'O treino tá top gostei bastante',
+        'Parabéns pelo seu dia e o bom profissional que é!',
+      ],
+    },
+    {
+      id: 'nabi-treino',
+      name: 'Nabi Oliveira dos Santos',
+      messages: [
+        'Olá Daniel, boa noite',
+        'tudo bem com você?',
+        'acabei de bater o olho no treino e gostei demais',
+        'parabéns pelo trabalho',
+        'muito obrigado',
+      ],
+    },
+    {
+      id: 'aparecido',
+      name: 'Aparecido Marinho Gonçalves',
+      messages: [
+        'Daniel, vc é fera mesmo hein...',
+        'Desde que comecei seus treinos melhorei força, definição, disposição...',
+        'E esses treinos me deixam no pump!!!',
+        'Muito bom, treinos desafiadores, curtos e eficientes, ainda bem que te encontrei',
+        'Um abraço cara',
+        'Qdo o profissional é bom a gente tem que elogiar. Parabéns',
+      ],
+    },
+    {
+      id: 'nabi-suporte',
+      name: 'Nabi Oliveira dos Santos',
+      messages: [
+        'cara',
+        'show',
+        'muito obrigado',
+        'gostei bastante do treino hoje e de toda sua atenção e suporte',
+        'tá de parabéns',
+      ],
+    },
   ];
 
   readonly activeTestimonial = signal(0);
@@ -58,6 +101,8 @@ export class App {
   readonly anamneseComplete = signal(false);
   readonly anamneseInitialized = signal(false);
   readonly chatInput = signal('');
+  readonly anamneseChatStyle = signal<Record<string, string>>({});
+  readonly anamneseChatMobileFit = signal(false);
 
   private touchStartX = 0;
   private touchStartY = 0;
@@ -67,6 +112,11 @@ export class App {
   private readonly swipeThreshold = 48;
   private chatMessageSeq = 0;
   private anamneseSubmitting = false;
+  private chatViewportCleanup?: () => void;
+
+  ngOnDestroy(): void {
+    this.unbindChatViewport();
+  }
 
   carouselTransform(): string {
     const index = this.activeTestimonial();
@@ -76,6 +126,13 @@ export class App {
 
   carouselSlideBasis(): string {
     return `${100 / this.testimonials.length}%`;
+  }
+
+  testimonialInitials(name: string): string {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return '?';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }
 
   nextTestimonial(): void {
@@ -180,11 +237,13 @@ export class App {
       this.syncCurrentQuestionInChat();
     }
     this.anamneseChatOpen.set(true);
+    this.bindChatViewport();
     this.scheduleChatScroll();
   }
 
   closeAnamneseChat(): void {
     this.anamneseChatOpen.set(false);
+    this.unbindChatViewport();
   }
 
   toggleAnamneseChat(): void {
@@ -211,6 +270,81 @@ export class App {
       event.preventDefault();
       this.sendChatInput();
     }
+  }
+
+  onChatInputFocus(): void {
+    this.syncAnamneseChatToVisualViewport();
+    this.scheduleChatScroll();
+    if (typeof window === 'undefined') return;
+    window.setTimeout(() => this.syncAnamneseChatToVisualViewport(), 280);
+    window.setTimeout(() => this.scheduleChatScroll(), 320);
+  }
+
+  private bindChatViewport(): void {
+    if (typeof window === 'undefined') return;
+    this.unbindChatViewport();
+
+    const update = () => this.syncAnamneseChatToVisualViewport();
+    update();
+
+    window.addEventListener('resize', update);
+    window.addEventListener('orientationchange', update);
+
+    const vv = window.visualViewport;
+    if (vv) {
+      vv.addEventListener('resize', update);
+      vv.addEventListener('scroll', update);
+      this.chatViewportCleanup = () => {
+        vv.removeEventListener('resize', update);
+        vv.removeEventListener('scroll', update);
+        window.removeEventListener('resize', update);
+        window.removeEventListener('orientationchange', update);
+      };
+      return;
+    }
+
+    this.chatViewportCleanup = () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('orientationchange', update);
+    };
+  }
+
+  private unbindChatViewport(): void {
+    this.chatViewportCleanup?.();
+    this.chatViewportCleanup = undefined;
+    this.anamneseChatStyle.set({});
+    this.anamneseChatMobileFit.set(false);
+  }
+
+  private syncAnamneseChatToVisualViewport(): void {
+    if (typeof window === 'undefined' || !this.anamneseChatOpen()) return;
+
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+    if (!isMobile) {
+      this.anamneseChatStyle.set({});
+      this.anamneseChatMobileFit.set(false);
+      return;
+    }
+
+    const vv = window.visualViewport;
+    const gap = 8;
+    const width = vv ? vv.width : window.innerWidth;
+    const height = vv ? vv.height : window.innerHeight;
+    const offsetTop = vv?.offsetTop ?? 0;
+    const offsetLeft = vv?.offsetLeft ?? 0;
+
+    this.anamneseChatMobileFit.set(true);
+    this.anamneseChatStyle.set({
+      top: `${offsetTop + gap}px`,
+      left: `${offsetLeft + gap}px`,
+      width: `${Math.max(0, width - gap * 2)}px`,
+      height: `${Math.max(220, height - gap * 2)}px`,
+      bottom: 'auto',
+      right: 'auto',
+      maxHeight: 'none',
+      marginLeft: '0',
+      marginRight: '0',
+    });
   }
 
   chooseAnamneseOption(option: string): void {
