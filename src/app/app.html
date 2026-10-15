@@ -1,7 +1,7 @@
-<div class="lp-page">
+<div class="lp-page" [class.lp-page--menu-open]="mobileMenuOpen()">
   <header class="site-header">
     <div class="nav-inner">
-      <a href="#" aria-label="Daniel Victor Personal Trainer">
+      <a href="#inicio" aria-label="Daniel Victor Personal Trainer" (click)="closeMobileMenu()">
         <img class="brand-logo" src="logo.png" width="120" height="64" alt="Daniel Victor Personal Trainer" />
       </a>
       <nav class="nav-links" aria-label="Navegação principal">
@@ -12,16 +12,59 @@
         <a href="#depoimentos">Depoimentos</a>
         <a href="#consultoria">Consultoria</a>
       </nav>
-      <a
-        class="btn btn-primary btn-sm"
-        [href]="whatsAppLink(msgHero)"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Falar no WhatsApp
-      </a>
+      <div class="nav-actions">
+        <a
+          class="btn btn-primary btn-sm nav-cta-desktop"
+          [href]="whatsAppLink(msgHero)"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Falar no WhatsApp
+        </a>
+        <button
+          type="button"
+          class="nav-toggle"
+          (click)="toggleMobileMenu()"
+          [attr.aria-expanded]="mobileMenuOpen()"
+          aria-controls="mobile-nav"
+          [attr.aria-label]="mobileMenuOpen() ? 'Fechar menu' : 'Abrir menu'"
+        >
+          <span class="nav-toggle-bar"></span>
+          <span class="nav-toggle-bar"></span>
+          <span class="nav-toggle-bar"></span>
+        </button>
+      </div>
     </div>
   </header>
+
+  <div
+    class="mobile-nav-backdrop"
+    [class.mobile-nav-backdrop--open]="mobileMenuOpen()"
+    (click)="closeMobileMenu()"
+    aria-hidden="true"
+  ></div>
+  <nav
+    id="mobile-nav"
+    class="mobile-nav"
+    [class.mobile-nav--open]="mobileMenuOpen()"
+    aria-label="Menu mobile"
+  >
+    <a href="#especialidades" (click)="closeMobileMenu()">Especialidades</a>
+    <a href="#como-funciona" (click)="closeMobileMenu()">Como funciona</a>
+    <a href="#mfit" (click)="closeMobileMenu()">App MFIT</a>
+    <a href="#planos" (click)="closeMobileMenu()">Planos</a>
+    <a href="#depoimentos" (click)="closeMobileMenu()">Depoimentos</a>
+    <a href="#consultoria" (click)="closeMobileMenu()">Consultoria</a>
+    <a
+      class="btn btn-primary"
+      [href]="whatsAppLink(msgHero)"
+      target="_blank"
+      rel="noopener noreferrer"
+      (click)="closeMobileMenu()"
+    >
+      Falar no WhatsApp
+    </a>
+  </nav>
 
   <section class="hero" id="inicio">
     <div class="hero-bg" aria-hidden="true"></div>

@@ -35,6 +35,7 @@ export class App {
   ];
 
   readonly activeTestimonial = signal(0);
+  readonly mobileMenuOpen = signal(false);
 
   private touchStartX = 0;
   private touchStartY = 0;
@@ -65,6 +66,14 @@ export class App {
 
   goToTestimonial(index: number): void {
     this.activeTestimonial.set(index);
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update((open) => !open);
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
   }
 
   onCarouselTouchStart(event: Event): void {
