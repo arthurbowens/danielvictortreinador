@@ -225,14 +225,9 @@
         </article>
       </div>
       <p style="margin-top: 2rem; text-align: center">
-        <a
-          class="btn btn-primary"
-          [href]="whatsAppLink(msgAvaliacao)"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Iniciar minha avaliação
-        </a>
+          <button type="button" class="btn btn-primary" (click)="openAnamneseChat()">
+            Iniciar minha avaliação
+          </button>
       </p>
     </div>
   </section>
@@ -483,6 +478,100 @@
     <img src="logo.png" width="100" height="54" alt="" aria-hidden="true" />
     <p>© Daniel Victor · Personal Trainer · Consultoria Online</p>
   </footer>
+
+  @if (anamneseChatOpen()) {
+    <section id="anamnese-assistant" class="anamnese-chat" aria-label="Assistente de anamnese">
+      <header class="anamnese-chat__header">
+        <div class="anamnese-chat__profile">
+          <img
+            class="anamnese-chat__avatar"
+            src="foto1.jpeg"
+            width="44"
+            height="44"
+            alt="Foto de Daniel Victor"
+          />
+          <span class="anamnese-chat__avatar-online" aria-hidden="true"></span>
+        </div>
+        <div class="anamnese-chat__titles">
+          <strong>Assistente Daniel</strong>
+          <span>Anamnese · Daniel Victor</span>
+        </div>
+        <div class="anamnese-chat__status">
+          <span class="anamnese-chat__status-dot" aria-hidden="true"></span>
+          Online
+        </div>
+        <button type="button" class="anamnese-chat__close" (click)="closeAnamneseChat()" aria-label="Fechar chat">
+          ×
+        </button>
+      </header>
+
+      <div class="anamnese-chat__body">
+        @for (message of anamneseMessages(); track message.id) {
+          <div
+            class="anamnese-chat__bubble"
+            [class.anamnese-chat__bubble--user]="message.from === 'user'"
+          >
+            {{ message.text }}
+          </div>
+        }
+      </div>
+
+      <footer class="anamnese-chat__footer">
+        @if (!anamneseComplete() && currentAnamneseStep(); as step) {
+          @if (step.type === 'choice' && step.choices) {
+            <div class="anamnese-chat__choices">
+              @for (option of step.choices; track option) {
+                <button type="button" class="anamnese-chat__choice" (click)="chooseAnamneseOption(option)">
+                  {{ option }}
+                </button>
+              }
+            </div>
+          } @else {
+            <div class="anamnese-chat__input-row">
+              <input
+                type="text"
+                class="anamnese-chat__input"
+                [value]="chatInput()"
+                (input)="onChatInput($event)"
+                (keydown)="onChatInputKeydown($event)"
+                [placeholder]="step.placeholder ?? 'Digite sua resposta'"
+                autocomplete="off"
+              />
+              <button type="button" class="anamnese-chat__send" (click)="sendChatInput()">Enviar</button>
+            </div>
+          }
+          <p class="anamnese-chat__progress">{{ anamneseProgressLabel() }}</p>
+        } @else if (anamneseComplete()) {
+          <p class="anamnese-chat__done">Anamnese enviada. Se o WhatsApp não abrir, use o botão abaixo.</p>
+          <a
+            class="btn btn-primary anamnese-chat__whatsapp"
+            [href]="anamneseWhatsAppUrl()"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Abrir WhatsApp
+          </a>
+          <p class="anamnese-chat__progress">{{ anamneseProgressLabel() }}</p>
+        }
+      </footer>
+    </section>
+  }
+
+  @if (!anamneseChatOpen()) {
+    <button
+      type="button"
+      class="anamnese-fab"
+      (click)="toggleAnamneseChat()"
+      [attr.aria-expanded]="anamneseChatOpen()"
+      aria-controls="anamnese-assistant"
+    >
+      <span class="anamnese-fab__avatar-wrap">
+        <img class="anamnese-fab__avatar" src="foto1.jpeg" width="28" height="28" alt="" />
+        <span class="anamnese-fab__online" aria-hidden="true"></span>
+      </span>
+      Assistente Daniel
+    </button>
+  }
 
   <a
     class="wa-fab"

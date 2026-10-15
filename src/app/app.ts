@@ -1,4 +1,16 @@
 import { Component, signal } from '@angular/core';
+import {
+  ANAMNESE_INTRO_LINES,
+  ANAMNESE_STEPS,
+  AnamneseStep,
+  buildAnamneseWhatsAppMessage,
+} from './anamnese-assistant.data';
+
+export interface ChatMessage {
+  id: number;
+  from: 'bot' | 'user';
+  text: string;
+}
 
 export interface Testimonial {
   src: string;
@@ -24,8 +36,8 @@ export interface Plan {
   styleUrl: './app.css',
 })
 export class App {
-  /** Número com DDI + DDD, somente dígitos (ex.: 5562999999999). */
-  readonly whatsappPhone = '5562999999999';
+  /** Número com DDI + DDD, somente dígitos. */
+  readonly whatsappPhone = '5511958727755';
 
   readonly testimonials: Testimonial[] = [
     { src: 'depoimento1.jpeg', alt: 'Depoimento de aluna no chat' },
@@ -37,12 +49,24 @@ export class App {
   readonly activeTestimonial = signal(0);
   readonly mobileMenuOpen = signal(false);
 
+  readonly anamneseSteps = ANAMNESE_STEPS;
+  readonly anamneseTotalSteps = ANAMNESE_STEPS.length;
+  readonly anamneseChatOpen = signal(false);
+  readonly anamneseMessages = signal<ChatMessage[]>([]);
+  readonly anamneseStepIndex = signal(0);
+  readonly anamneseAnswers = signal<Record<string, string>>({});
+  readonly anamneseComplete = signal(false);
+  readonly anamneseInitialized = signal(false);
+  readonly chatInput = signal('');
+
   private touchStartX = 0;
   private touchStartY = 0;
   private pointerStartX = 0;
   private pointerStartY = 0;
   private pointerActive = false;
   private readonly swipeThreshold = 48;
+  private chatMessageSeq = 0;
+  private anamneseSubmitting = false;
 
   carouselTransform(): string {
     const index = this.activeTestimonial();
@@ -126,6 +150,162 @@ export class App {
 
   whatsAppLink(message: string): string {
     return `https://wa.me/${this.whatsappPhone}?text=${encodeURIComponent(message)}`;
+  }
+
+  currentAnamneseStep(): AnamneseStep | null {
+    if (this.anamneseComplete()) return null;
+    return this.anamneseSteps[this.anamneseStepIndex()] ?? null;
+  }
+
+  anamneseProgressLabel(): string {
+    if (this.anamneseComplete()) return 'Anamnese concluída';
+    return `Pergunta ${this.anamneseStepIndex() + 1} de ${this.anamneseTotalSteps}`;
+  }
+
+  currentAnamnesePrompt(): string {
+    const step = this.currentAnamneseStep();
+    if (!step) return '';
+    return step.prompt(this.anamneseAnswers());
+  }
+
+  anamneseWhatsAppUrl(): string {
+    return this.whatsAppLink(buildAnamneseWhatsAppMessage(this.anamneseAnswers()));
+  }
+
+  openAnamneseChat(): void {
+    if (!this.anamneseInitialized()) {
+      this.startAnamneseConversation();
+      this.anamneseInitialized.set(true);
+    } else {
+      this.syncCurrentQuestionInChat();
+    }
+    this.anamneseChatOpen.set(true);
+    this.scheduleChatScroll();
+  }
+
+  closeAnamneseChat(): void {
+    this.anamneseChatOpen.set(false);
+  }
+
+  toggleAnamneseChat(): void {
+    if (this.anamneseChatOpen()) {
+      this.closeAnamneseChat();
+    } else {
+      this.openAnamneseChat();
+    }
+  }
+
+  onChatInput(event: Event): void {
+    this.chatInput.set((event.target as HTMLInputElement).value);
+  }
+
+  sendChatInput(): void {
+    const value = this.chatInput().trim();
+    if (!value) return;
+    this.submitAnamneseAnswer(value);
+    this.chatInput.set('');
+  }
+
+  onChatInputKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.sendChatInput();
+    }
+  }
+
+  chooseAnamneseOption(option: string): void {
+    this.submitAnamneseAnswer(option);
+  }
+
+  private startAnamneseConversation(): void {
+    this.chatMessageSeq = 0;
+    const messages: ChatMessage[] = ANAMNESE_INTRO_LINES.map((text) => this.createChatMessage('bot', text));
+    const first = ANAMNESE_STEPS[0];
+    messages.push(this.createChatMessage('bot', first.prompt({})));
+    this.anamneseMessages.set(messages);
+    this.anamneseStepIndex.set(0);
+    this.anamneseAnswers.set({});
+    this.anamneseComplete.set(false);
+    this.chatInput.set('');
+    this.anamneseSubmitting = false;
+  }
+
+  private createChatMessage(from: 'bot' | 'user', text: string): ChatMessage {
+    return { id: ++this.chatMessageSeq, from, text };
+  }
+
+  private syncCurrentQuestionInChat(): void {
+    if (this.anamneseComplete()) return;
+    const prompt = this.currentAnamnesePrompt();
+    if (!prompt) return;
+
+    const messages = this.anamneseMessages();
+    const lastBot = [...messages].reverse().find((message) => message.from === 'bot');
+    if (lastBot?.text === prompt) return;
+
+    this.anamneseMessages.update((current) => [...current, this.createChatMessage('bot', prompt)]);
+  }
+
+  private scheduleChatScroll(): void {
+    if (typeof window === 'undefined') return;
+    window.setTimeout(() => this.scrollChatToBottom(), 0);
+    window.setTimeout(() => this.scrollChatToBottom(), 120);
+  }
+
+  private scrollChatToBottom(): void {
+    if (typeof document === 'undefined') return;
+    const body = document.querySelector('.anamnese-chat__body');
+    if (body instanceof HTMLElement) {
+      body.scrollTop = body.scrollHeight;
+    }
+  }
+
+  private openAnamneseWhatsApp(answers: Record<string, string>): void {
+    const url = this.whatsAppLink(buildAnamneseWhatsAppMessage(answers));
+    if (typeof window === 'undefined') return;
+    window.setTimeout(() => {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }, 500);
+  }
+
+  private submitAnamneseAnswer(raw: string): void {
+    const value = raw.trim();
+    if (!value || this.anamneseComplete() || this.anamneseSubmitting) return;
+
+    const step = this.currentAnamneseStep();
+    if (!step) return;
+
+    this.anamneseSubmitting = true;
+    const answers = { ...this.anamneseAnswers(), [step.key]: value };
+    this.anamneseAnswers.set(answers);
+
+    const userMessage = this.createChatMessage('user', value);
+    const nextIndex = this.anamneseStepIndex() + 1;
+
+    if (nextIndex >= this.anamneseSteps.length) {
+      const name = answers['nome'] ?? '';
+      this.anamneseComplete.set(true);
+      this.anamneseStepIndex.set(nextIndex);
+      this.anamneseMessages.update((messages) => [
+        ...messages,
+        userMessage,
+        this.createChatMessage(
+          'bot',
+          `Perfeito${name ? `, ${name}` : ''}! Abrindo o WhatsApp com suas respostas...`,
+        ),
+      ]);
+      this.scheduleChatScroll();
+      this.openAnamneseWhatsApp(answers);
+      this.anamneseSubmitting = false;
+      return;
+    }
+
+    const nextStep = this.anamneseSteps[nextIndex];
+    const nextQuestion = this.createChatMessage('bot', nextStep.prompt(answers));
+    this.anamneseStepIndex.set(nextIndex);
+    this.anamneseMessages.update((messages) => [...messages, userMessage, nextQuestion]);
+    this.scheduleChatScroll();
+    this.anamneseSubmitting = false;
   }
 
   readonly msgHero =
