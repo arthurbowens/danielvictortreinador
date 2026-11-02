@@ -23,11 +23,18 @@ export interface Plan {
   name: string;
   price: string;
   priceSuffix: string;
-  duration?: string;
   tagline: string;
-  description: string;
-  features: string[];
+  description: string[];
+  sections: PlanSection[];
+  closing: string;
+  /** Texto de "Qual plano combina com você?". */
+  fit: string;
   whatsappMessage: string;
+}
+
+export interface PlanSection {
+  title: string;
+  items: string[];
 }
 
 @Component({
@@ -446,7 +453,7 @@ export class App implements OnDestroy {
     'Olá, Daniel Victor! Vim pelo site e quero começar minha consultoria online. Pode me contar como funciona?';
 
   readonly msgPlanos =
-    'Olá! Gostaria de conhecer os planos da consultoria (BASE, EVOLVE, ELITE, DIAMANTE e BÁSICO ANUAL) e saber qual combina com meu objetivo.';
+    'Olá! Gostaria de conhecer os planos da consultoria (Kettlebell Total, BASE, EVOLVE e ELITE) e saber qual combina com meu objetivo.';
 
   readonly msgAvaliacao =
     'Olá! Quero iniciar minha avaliação física (anamnese e questionário de aptidão). Como faço?';
@@ -456,122 +463,141 @@ export class App implements OnDestroy {
 
   readonly plans: Plan[] = [
     {
+      id: 'kettlebell-total',
+      name: 'Kettlebell Total',
+      price: '147,90',
+      priceSuffix: '/mês',
+      tagline: 'Treinamento inteligente para quem busca praticidade, eficiência e liberdade para treinar.',
+      description: [
+        'O Kettlebell Total é um programa de treinamento personalizado com foco no uso do kettlebell e do peso corporal, ideal para adultos que desejam otimizar o tempo e treinar em casa ou na área de pesos livres da academia, sem depender de máquinas ou de uma grande variedade de equipamentos.',
+        'O planejamento é adaptado ao seu nível de condicionamento, às suas necessidades e aos seus objetivos, com acompanhamento profissional e progressão estruturada.',
+      ],
+      sections: [
+        {
+          title: 'Protocolos de treinamento',
+          items: [
+            'Força muscular: desenvolvimento da força e da capacidade de realizar movimentos com eficiência.',
+            'Condicionamento metabólico: sessões planejadas para aumentar a demanda energética e contribuir para o gasto calórico.',
+            'Mobilidade: exercícios voltados à melhora da amplitude de movimento e do controle corporal.',
+          ],
+        },
+        {
+          title: 'O que você recebe',
+          items: [
+            'Planejamento de treinamento individualizado.',
+            'Exercícios com kettlebell e peso corporal.',
+            'Prescrição de séries, repetições, intervalos e orientações de execução.',
+            'Biblioteca de vídeos com demonstrações das técnicas de execução com kettlebell.',
+            'Adaptações para iniciantes e praticantes intermediários.',
+            'Progressão planejada de acordo com sua evolução.',
+            'Acompanhamento profissional e ajustes no planejamento.',
+            'Atualização do treino a cada 30 dias.',
+            'Acesso à plataforma enquanto a assinatura estiver ativa.',
+            'Reunião ao vivo para esclarecer dúvidas e alinhar as estratégias do treinamento.',
+          ],
+        },
+      ],
+      closing: 'Praticidade para treinar. Estratégia para evoluir.',
+      fit: 'para quem busca praticidade e quer treinar com kettlebell e peso corporal.',
+      whatsappMessage:
+        'Olá, Daniel Victor! Tenho interesse no plano Kettlebell Total (R$ 147,90/mês). Quero saber como começar.',
+    },
+    {
       id: 'base',
       name: 'BASE',
-      price: '179,99',
+      price: '197,90',
       priceSuffix: '/mês',
-      tagline: 'Construa sua melhor versão.',
-      description:
-        'Treinamento personalizado para quem quer começar a evoluir com estratégia.',
-      features: [
-        'Treino personalizado conforme objetivo e nível',
-        'Treino pelo canal definido pelo personal',
-        'Vídeos demonstrando os exercícios no canal definido',
-        'Divisão semanal dos treinos',
-        'Orientações de execução e técnicas por escrito',
-        'Suporte prioritário no WhatsApp',
-        'Ajustes programados a cada 30 dias',
-        'Reunião ao vivo para dúvidas e alinhamento',
+      tagline: 'Treine com técnica. Evolua com propósito.',
+      description: [
+        'Um plano de consultoria para quem deseja desenvolver seu condicionamento físico com um treinamento individualizado, estruturado de acordo com seus objetivos, seu nível de experiência e sua rotina.',
+        'Aqui, cada etapa do treinamento tem um propósito: você sabe o que fazer, como executar os exercícios e como progredir ao longo do processo.',
       ],
+      sections: [
+        {
+          title: 'Indicado para objetivos como',
+          items: [
+            'Hipertrofia muscular.',
+            'Preparação física complementar para corredores.',
+            'Retorno progressivo aos exercícios, respeitando as orientações de profissionais de saúde quando necessário.',
+            'Treinamento feminino personalizado.',
+            'Desenvolvimento do condicionamento físico e da força.',
+          ],
+        },
+        {
+          title: 'O que você recebe',
+          items: [
+            'Treinamento personalizado conforme seus objetivos e seu nível de condicionamento.',
+            'Planejamento estruturado com periodização do treinamento.',
+            'Estratégia de evolução dividida em fases, de acordo com as necessidades individuais.',
+            'Prescrição dos exercícios por meio do canal ou da plataforma definidos pelo personal trainer.',
+            'Biblioteca exclusiva de vídeos com demonstrações de exercícios e utilização de equipamentos.',
+            'Orientações sobre amplitude de movimento, controle da execução e erros comuns.',
+            'Diretrizes para progressão de cargas e ajuste da intensidade.',
+            'Atualização do planejamento de treino a cada 45 dias.',
+            'Relatórios de evolução e histórico do treinamento.',
+            'Acesso aos vídeos enquanto a assinatura estiver ativa.',
+            'Reunião ao vivo para feedback, esclarecimento de dúvidas e alinhamento das próximas estratégias.',
+          ],
+        },
+      ],
+      closing: 'Um plano estruturado para transformar esforço em evolução consistente.',
+      fit: 'para quem deseja um treinamento individualizado, com periodização e acompanhamento profissional.',
       whatsappMessage:
-        'Olá, Daniel Victor! Quero assinar o plano BASE (R$ 179,99/mês). Pode me orientar sobre o próximo passo?',
+        'Olá, Daniel Victor! Quero assinar o plano BASE (R$ 197,90/mês). Pode me orientar sobre o próximo passo?',
     },
     {
       id: 'evolve',
       name: 'EVOLVE',
-      price: '279,99',
+      price: '297,90',
       priceSuffix: '/mês',
-      tagline: 'Treine com técnica. Evolua com propósito.',
-      description: 'Todos os benefícios do BASE, com periodização e conteúdo avançado.',
-      features: [
-        'Todos os benefícios do plano BASE',
-        'Biblioteca exclusiva de vídeos sobre técnicas de execução',
-        'Demonstrações de exercícios e equipamentos',
-        'Conteúdos sobre amplitude, controle do movimento e erros comuns',
-        'Orientações sobre progressão de cargas e intensidade',
-        'Acesso aos vídeos enquanto a assinatura estiver ativa',
-        'Periodização de treinamento inteligente',
-        'Estratégia dividida em fases para intensificar o desenvolvimento',
-        'Avaliações periódicas e relatórios de evolução',
-        'Histórico completo do aluno',
-        'Reunião ao vivo para feedback e alinhar estratégias',
+      tagline: 'Treinamento e estratégia nutricional para uma abordagem mais completa.',
+      description: [
+        'Para quem deseja ir além do planejamento de treino e contar também com orientação nutricional profissional, integrando as estratégias de treinamento e alimentação.',
+        'O EVOLVE reúne todos os benefícios do plano BASE e acrescenta suporte nutricional realizado por profissional habilitado.',
       ],
+      sections: [
+        {
+          title: 'Todos os benefícios do plano BASE, mais:',
+          items: [
+            'Acompanhamento nutricional individualizado.',
+            'Planejamento alimentar elaborado por nutricionista da equipe, conforme avaliação individual.',
+            'Anamnese e levantamento de informações relevantes para a elaboração do planejamento alimentar.',
+            'Atualização do planejamento de treino e do planejamento alimentar a cada 45 dias, conforme avaliação profissional e necessidade individual.',
+          ],
+        },
+      ],
+      closing: 'Treine com estratégia. Alimente seus objetivos. Evolua com consistência.',
+      fit: 'para quem quer integrar o treinamento a um planejamento alimentar elaborado por nutricionista.',
       whatsappMessage:
-        'Olá, Daniel Victor! Tenho interesse no plano EVOLVE (R$ 279,99/mês). Quero saber como começar.',
+        'Olá, Daniel Victor! Tenho interesse no plano EVOLVE (R$ 297,90/mês). Quero saber como começar.',
     },
     {
       id: 'elite',
       name: 'ELITE',
-      price: '499,99',
+      price: '397,90',
       priceSuffix: '/mês',
-      tagline: 'Estratégia completa para ir além.',
-      description: 'Todos os benefícios do EVOLVE, com nutrição e videochamada mensal.',
-      features: [
-        'Todos os benefícios do plano EVOLVE',
-        'Acompanhamento nutricional com nutricionista da equipe',
-        'Anamnese de saúde e planejamento alimentar personalizado',
-        'Atualização do planejamento alimentar a cada mês',
-        'Aula online 1x por mês (1h) por videochamada',
-        'Análise da prática no treinamento ao vivo',
+      tagline: 'Acompanhamento mais próximo para aprimorar sua execução e sua evolução.',
+      description: [
+        'Para quem deseja uma experiência mais completa, com todos os benefícios do plano EVOLVE e sessões ao vivo para trabalhar a técnica, esclarecer dúvidas e aperfeiçoar a prática dos exercícios.',
       ],
-      whatsappMessage:
-        'Olá, Daniel Victor! Quero o plano ELITE (R$ 499,99/mês) com nutri e videochamada. Como funciona a contratação?',
-    },
-    {
-      id: 'diamante',
-      name: 'Plano Diamante',
-      price: '1.497',
-      priceSuffix: 'à vista',
-      duration: '3 meses',
-      tagline: 'Periodização completa com acompanhamento de alto nível.',
-      description: 'Investimento único para 3 meses de consultoria com nutrição e análise de vídeos.',
-      features: [
-        'Periodização de 3 meses',
-        'Acompanhamento nutricional',
-        'Planejamento dividido em fases',
-        'Reavaliações periódicas',
-        'Comparação de evolução',
-        'Relatórios de acompanhamento',
-        'Ajustes individualizados conforme evolução',
-        'Estratégia de progressão de carga',
-        'Estratégia de cardio',
-        'Ajustes de volume e intensidade',
-        'Análise de vídeos de execução',
-        'Suporte via WhatsApp',
-        'Atendimento prioritário',
-        'Revisão de metas durante o processo',
-        'Planejamento das próximas etapas',
-        'Aula online 1x por mês',
+      sections: [
+        {
+          title: 'Todos os benefícios do plano EVOLVE, mais:',
+          items: [
+            'Duas aulas online por mês.',
+            'Uma hora de acompanhamento por videochamada, conforme a organização das sessões.',
+            'Análise da execução dos exercícios durante as aulas.',
+            'Correções técnicas ao vivo, dentro das possibilidades de observação por vídeo.',
+            'Feedback individualizado para aprimorar a qualidade e a eficiência dos movimentos.',
+            'Orientações práticas para melhorar o desempenho e aplicar as estratégias do treinamento.',
+            'Reuniões para esclarecer dúvidas e alinhar as próximas etapas do planejamento.',
+          ],
+        },
       ],
+      closing: 'Mais proximidade, mais orientação e uma estratégia alinhada à sua evolução.',
+      fit: 'para quem busca todos os benefícios do EVOLVE com aulas online e acompanhamento técnico ao vivo.',
       whatsappMessage:
-        'Olá, Daniel Victor! Quero contratar o Plano Diamante (3 meses, R$ 1.497 à vista). Pode me passar os detalhes?',
-    },
-    {
-      id: 'basico-anual',
-      name: 'Plano Básico Anual',
-      price: '2.997',
-      priceSuffix: 'à vista',
-      duration: '12 meses',
-      tagline: 'Um ano de planejamento e evolução contínua.',
-      description: 'Investimento à vista com periodização anual e acompanhamento de performance.',
-      features: [
-        'Planejamento anual',
-        'Periodização de 12 meses',
-        'Estratégia dividida em diferentes fases',
-        'Avaliações periódicas',
-        'Relatórios de evolução',
-        'Histórico completo do aluno',
-        'Ajustes contínuos do treinamento',
-        'Estratégias específicas para diferentes objetivos',
-        'Revisão periódica de metas',
-        'Acompanhamento de performance',
-        'Análise técnica de execução',
-        'Suporte prioritário',
-        'Planejamento das próximas fases',
-        'Aula online 1x no mês',
-      ],
-      whatsappMessage:
-        'Olá, Daniel Victor! Tenho interesse no Plano Básico Anual (12 meses, R$ 2.997 à vista). Como faço para começar?',
+        'Olá, Daniel Victor! Quero o plano ELITE (R$ 397,90/mês). Como funciona a contratação?',
     },
   ];
 }

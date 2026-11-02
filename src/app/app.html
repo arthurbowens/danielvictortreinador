@@ -376,35 +376,45 @@
 
   <section class="section section--blue" id="planos">
     <div class="section-inner">
-      <span class="section-label">Planos</span>
-      <h2 class="section-title">Escolha o nível da sua evolução</h2>
+      <span class="section-label">Planos de consultoria online</span>
+      <h2 class="section-title">Seu objetivo merece uma estratégia personalizada.</h2>
       <p class="section-desc">
-        Assinaturas mensais (BASE, EVOLVE e ELITE) e pacotes de 3 e 12 meses (Diamante e Básico
-        Anual). Todos com suporte real e método pensado para constância.
+        Treinar com propósito vai além de escolher exercícios. É ter um planejamento estruturado,
+        uma estratégia adequada ao seu nível e acompanhamento profissional para evoluir com
+        segurança, consistência e resultados.
+      </p>
+      <p class="section-desc">
+        Conheça nossos planos e escolha aquele que melhor se encaixa nos seus objetivos e na sua
+        rotina.
       </p>
       <div class="plans-grid">
         @for (plan of plans; track plan.id) {
           <article class="plan-card">
             <p class="plan-tier">{{ plan.name }}</p>
-            @if (plan.duration) {
-              <p class="plan-duration">{{ plan.duration }}</p>
-            }
             <p class="plan-price">
               <span class="plan-price-currency">R$</span> {{ plan.price }}
               <span class="plan-price-period">{{ plan.priceSuffix }}</span>
             </p>
             <p class="plan-tagline">{{ plan.tagline }}</p>
-            <p class="plan-desc">{{ plan.description }}</p>
-            <ul>
-              @for (feature of plan.features; track feature) {
-                <li>
-                  <svg class="list-icon" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {{ feature }}
-                </li>
+            @for (paragraph of plan.description; track paragraph) {
+              <p class="plan-desc">{{ paragraph }}</p>
+            }
+            <div class="plan-sections">
+              @for (section of plan.sections; track section.title) {
+                <h3>{{ section.title }}</h3>
+                <ul>
+                  @for (item of section.items; track item) {
+                    <li>
+                      <svg class="list-icon" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {{ item }}
+                    </li>
+                  }
+                </ul>
               }
-            </ul>
+            </div>
+            <p class="plan-closing">{{ plan.closing }}</p>
             <a
               class="btn btn-primary"
               style="width: 100%"
@@ -416,6 +426,14 @@
             </a>
           </article>
         }
+      </div>
+      <div class="plan-guide">
+        <h3>Qual plano combina com você?</h3>
+        <ul>
+          @for (plan of plans; track plan.id) {
+            <li><strong>{{ plan.name }}:</strong> {{ plan.fit }}</li>
+          }
+        </ul>
       </div>
       <p class="plans-motto">
         <span>Resultado</span>
@@ -469,10 +487,14 @@
 
   <section class="cta-final">
     <div class="section-inner">
-      <h2>Pronta(o) para o próximo nível?</h2>
+      <h2>O próximo passo começa com uma decisão.</h2>
       <p>
-        Envie uma mensagem agora. Em poucos minutos você descobre qual plano faz sentido para o seu
-        objetivo e como iniciar sua avaliação.
+        Você não precisa seguir um treino genérico ou tentar descobrir sozinho o que funciona. Com
+        uma estratégia individualizada, o treinamento passa a ter direção, propósito e critérios de
+        evolução.
+      </p>
+      <p>
+        Escolha seu plano e comece a construir sua melhor versão com acompanhamento profissional.
       </p>
       <a
         class="btn btn-primary"
