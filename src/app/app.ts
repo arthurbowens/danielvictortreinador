@@ -23,10 +23,11 @@ export interface Plan {
   name: string;
   price: string;
   priceSuffix: string;
+  duration?: string;
   tagline: string;
   description: string[];
   sections: PlanSection[];
-  closing: string;
+  closing?: string;
   /** Texto de "Qual plano combina com você?". */
   fit: string;
   whatsappMessage: string;
@@ -453,7 +454,7 @@ export class App implements OnDestroy {
     'Olá, Daniel Victor! Vim pelo site e quero começar minha consultoria online. Pode me contar como funciona?';
 
   readonly msgPlanos =
-    'Olá! Gostaria de conhecer os planos da consultoria (Kettlebell Total, BASE, EVOLVE e ELITE) e saber qual combina com meu objetivo.';
+    'Olá! Gostaria de conhecer os planos da consultoria (Kettlebell Total, BASE, EVOLVE, ELITE, Diamante e Básico Anual) e saber qual combina com meu objetivo.';
 
   readonly msgAvaliacao =
     'Olá! Quero iniciar minha avaliação física (anamnese e questionário de aptidão). Como faço?';
@@ -598,6 +599,74 @@ export class App implements OnDestroy {
       fit: 'para quem busca todos os benefícios do EVOLVE com aulas online e acompanhamento técnico ao vivo.',
       whatsappMessage:
         'Olá, Daniel Victor! Quero o plano ELITE (R$ 397,90/mês). Como funciona a contratação?',
+    },
+    {
+      id: 'diamante',
+      name: 'Plano Diamante',
+      price: '1.497',
+      priceSuffix: 'à vista',
+      duration: '3 meses',
+      tagline: 'Periodização completa com acompanhamento de alto nível.',
+      description: ['Investimento único para 3 meses de consultoria com nutrição e análise de vídeos.'],
+      sections: [
+        {
+          title: 'O que você recebe',
+          items: [
+            'Periodização de 3 meses',
+            'Acompanhamento nutricional',
+            'Planejamento dividido em fases',
+            'Reavaliações periódicas',
+            'Comparação de evolução',
+            'Relatórios de acompanhamento',
+            'Ajustes individualizados conforme evolução',
+            'Estratégia de progressão de carga',
+            'Estratégia de cardio',
+            'Ajustes de volume e intensidade',
+            'Análise de vídeos de execução',
+            'Suporte via WhatsApp',
+            'Atendimento prioritário',
+            'Revisão de metas durante o processo',
+            'Planejamento das próximas etapas',
+            'Aula online 1x por mês',
+          ],
+        },
+      ],
+      fit: 'para quem quer 3 meses de periodização com acompanhamento nutricional e análise de vídeos.',
+      whatsappMessage:
+        'Olá, Daniel Victor! Quero contratar o Plano Diamante (3 meses, R$ 1.497 à vista). Pode me passar os detalhes?',
+    },
+    {
+      id: 'basico-anual',
+      name: 'Plano Básico Anual',
+      price: '2.997',
+      priceSuffix: 'à vista',
+      duration: '12 meses',
+      tagline: 'Um ano de planejamento e evolução contínua.',
+      description: ['Investimento à vista com periodização anual e acompanhamento de performance.'],
+      sections: [
+        {
+          title: 'O que você recebe',
+          items: [
+            'Planejamento anual',
+            'Periodização de 12 meses',
+            'Estratégia dividida em diferentes fases',
+            'Avaliações periódicas',
+            'Relatórios de evolução',
+            'Histórico completo do aluno',
+            'Ajustes contínuos do treinamento',
+            'Estratégias específicas para diferentes objetivos',
+            'Revisão periódica de metas',
+            'Acompanhamento de performance',
+            'Análise técnica de execução',
+            'Suporte prioritário',
+            'Planejamento das próximas fases',
+            'Aula online 1x no mês',
+          ],
+        },
+      ],
+      fit: 'para quem quer um ano de planejamento, com periodização de 12 meses e acompanhamento de performance.',
+      whatsappMessage:
+        'Olá, Daniel Victor! Tenho interesse no Plano Básico Anual (12 meses, R$ 2.997 à vista). Como faço para começar?',
     },
   ];
 }

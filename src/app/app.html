@@ -391,6 +391,9 @@
         @for (plan of plans; track plan.id) {
           <article class="plan-card">
             <p class="plan-tier">{{ plan.name }}</p>
+            @if (plan.duration) {
+              <p class="plan-duration">{{ plan.duration }}</p>
+            }
             <p class="plan-price">
               <span class="plan-price-currency">R$</span> {{ plan.price }}
               <span class="plan-price-period">{{ plan.priceSuffix }}</span>
@@ -414,7 +417,9 @@
                 </ul>
               }
             </div>
-            <p class="plan-closing">{{ plan.closing }}</p>
+            @if (plan.closing) {
+              <p class="plan-closing">{{ plan.closing }}</p>
+            }
             <a
               class="btn btn-primary"
               style="width: 100%"
